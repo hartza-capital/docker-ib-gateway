@@ -1,40 +1,33 @@
 services:
   tws:
     build:
-      context: ./app
-      dockerfile: Dockerfile.tws
+      context: ./app/tws
+      dockerfile: Dockerfile
       args:
-        ibc_version: 3.12.0
+        IBC_VERSION: 3.12.0
     ports:
-      - "127.0.0.1:6080:6080"
-      - "127.0.0.1:8888:8888"
+      - "6080:6080"
+      - "8888:8888"
     restart: unless-stopped
-    secrets:
-      - ibkr_username
-      - ibkr_password
+    volumes:
+      - config.ini:/opt/ibc/config.ini
     stop_signal: SIGKILL
     environment:
       TWS_MAJOR_VRSN: 1012
 
   gateway:
     build:
-      context: ./app
+      context: ./app/gateway
       dockerfile: Dockerfile.gateway
       args:
-        ibc_version: 3.12.0
+        IBC_VERSION: 3.12.0
+    image: gateway:latest
     ports:
-      - "127.0.0.1:6081:6080"
-      - "127.0.0.1:8889:8888"
+      - "6081:6080"
+      - "8889:8888"
     restart: unless-stopped
-    secrets:
-      - ibkr_username
-      - ibkr_password
+    volumes:
+      - ./app/config.ini:/opt/ibc/config.ini
     stop_signal: SIGKILL
     environment:
       TWS_MAJOR_VRSN: 1012
-
-secrets:
-  ibkr_username:
-    file: ./username.txt
-  ibkr_password:
-    file: ./password.txt
