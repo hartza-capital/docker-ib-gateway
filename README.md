@@ -1,14 +1,13 @@
-# IBKR Gateway in Docker
+# IBKR Gateway in Container
 
 ## Features
 
-- **Fully containerized** IBKR Gateway instance + [IBC Alpha](https://github.com/IbcAlpha) in Docker, no external dependencies
+- **Fully containerized** IBKR Gateway instance + [IBC Alpha](https://github.com/IbcAlpha) with no external dependencies
 - **Supports noVNC** (a browser-based VNC client, proxied via Websockify)
-- **Autorestarts TWS automatically** (for example, due to daily logoff)
+- **Autorestarts automatically** (for example, due to daily logoff)
 
 ## Getting Started
 
-- Install [Docker](https://docs.docker.com/get-docker/)
 - Build the image:
   - `./build.sh`
 - Start the container:
@@ -26,14 +25,10 @@ This container is setup to connect to a paper account. To switch to a live accou
   - Paper Account: `4002`
 - Modify `gateway/config/ibc.ini`:
   - `TradingMode=live`
+- Modify `gateway/config/proxy.yaml`, with the live or paper port:
+  - `address: 127.0.0.1:4001`
 
 You will have to restart the container after making these changes.
-
-## TWS Version Changes
-
-TWS is updated frequently. Whenever the major version is incremented, you need to reconfigure the script.
-
-Modify the value of `TWS_MAJOR_VRSN` in `docker-compose.yml` to the latest version number without periods/alphabets (i.e. 10.11e -> 1011)
 
 ## Changes from the default config.ini
 
