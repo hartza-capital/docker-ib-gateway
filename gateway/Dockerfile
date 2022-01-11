@@ -1,6 +1,6 @@
 FROM debian:stable-slim AS build
 
-ARG IBC_VERSION=3.12.0
+ARG IBC_VERSION
 
 RUN apt update && \
     apt install -y \
@@ -8,8 +8,7 @@ RUN apt update && \
     unzip \ 
     wget
 
-# Download and install offline version of TWS
-RUN wget https://download2.interactivebrokers.com/installers/tws/latest-standalone/tws-latest-standalone-linux-x64.sh -O install.sh \
+RUN wget https://download2.interactivebrokers.com/installers/ibgateway/latest-standalone/ibgateway-latest-standalone-linux-x64.sh -O install.sh \
     && chmod +x install.sh
 
 RUN wget https://github.com/IbcAlpha/IBC/releases/download/${IBC_VERSION}/IBCLinux-${IBC_VERSION}.zip -O ibc.zip \
@@ -20,10 +19,11 @@ RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
 FROM debian:stable-slim
 
+ARG BUILD
+
 # procps is needed for twsstart.sh on Debian
 RUN apt update && \
     apt install -y \
-    nginx \ 
     procps \
     python3 \
     novnc \ 
@@ -43,9 +43,15 @@ RUN yes '' | ./install.sh \
 
 COPY --chown=trader --from=build /opt/ibc /opt/ibc
 
-COPY --chown=trader config.ini gatewaystart.sh /opt/ibc/
-COPY --chown=trader start.sh .
-COPY --chown=trader nginx.conf /usr/share/nginx/nginx.conf
-RUN chmod +x ./start.sh /opt/ibc/**.sh
+COPY --chown=trader config/config.ini ./scripts/gatewaystart.sh /opt/ibc/
+COPY --chown=trader ./scripts/run.sh .
+COPY --chown=trader ./scripts/fork_ports_delayed.sh .
 
-CMD [ "./start.sh" ]
+COPY --from=quay.io/arktos-venture/tcp-forward:0.0.4 /go ./proxy
+COPY config/proxy.yaml ./config.yaml
+
+RUN chmod +x ./*.sh /opt/ibc/**.sh
+
+EXPOSE 5000 3000
+
+CMD [ "./run.sh" ]
