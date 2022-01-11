@@ -1,33 +1,13 @@
-services:
-  tws:
-    build:
-      context: ./app/tws
-      dockerfile: Dockerfile
-      args:
-        IBC_VERSION: 3.12.0
-    ports:
-      - "6080:6080"
-      - "8888:8888"
-    restart: unless-stopped
-    volumes:
-      - config.ini:/opt/ibc/config.ini
-    stop_signal: SIGKILL
-    environment:
-      TWS_MAJOR_VRSN: 1012
+version: "3.9"
 
+services:
   gateway:
-    build:
-      context: ./app/gateway
-      dockerfile: Dockerfile.gateway
-      args:
-        IBC_VERSION: 3.12.0
-    image: gateway:latest
-    ports:
-      - "6081:6080"
-      - "8889:8888"
-    restart: unless-stopped
+    image: quay.io/arktos-venture/ibkr-gateway:latest
     volumes:
-      - ./app/config.ini:/opt/ibc/config.ini
+      - ./gateway/config/config.ini:/opt/ibc/config.ini
+      - ./gateway/config/proxy.yaml:/home/trader/proxy.yaml
+    restart: unless-stopped
     stop_signal: SIGKILL
-    environment:
-      TWS_MAJOR_VRSN: 1012
+    ports:
+      - 6080:6080
+      - 5001:5000
