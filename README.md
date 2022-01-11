@@ -20,11 +20,10 @@
 
 This container is setup to connect to a paper account. To switch to a live account:
 
-- Modify proxy.yaml's `destination` accordingly:
-  - Live Account: `4001`
-  - Paper Account: `4002`
-- Modify `gateway/config/ibc.ini`:
+- Create your config IBC (example `gateway/config/config.ini.example`) in the same folder of example `config.ini`.
   - `TradingMode=live`
+  - `IbLoginId=LOGIN`
+  - `IbPassword=XXXX`
 - Modify `gateway/config/proxy.yaml`, with the live or paper port:
   - `address: 127.0.0.1:4001`
 
