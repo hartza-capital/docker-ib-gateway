@@ -5,6 +5,7 @@
 - **Fully containerized** IBKR Gateway instance + [IBC Alpha](https://github.com/IbcAlpha) with no external dependencies
 - **Supports noVNC** (a browser-based VNC client, proxied via Websockify)
 - **Autorestarts automatically** (for example, due to daily logoff)
+- **Kubernetes Support** (Helm chart)
 
 ## Getting Started
 
