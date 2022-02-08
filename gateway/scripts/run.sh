@@ -20,7 +20,9 @@ fi
 /usr/share/novnc/utils/launch.sh --vnc localhost:5900 &
 
 # Export ports of IB Gateway
-./fork_ports_delayed.sh &
+if [ "$TCP_TUNNEL_ENABLED" ]; then
+    ./fork_ports_delayed.sh &
+fi
 
 # Start TWS and automatically restart if it dies
 while true; do
