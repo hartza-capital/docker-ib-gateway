@@ -6,8 +6,10 @@ services:
     volumes:
       - ./gateway/config/config.ini:/opt/ibc/config.ini
       - ./gateway/config/proxy.yaml:/home/trader/proxy.yaml
+    environment:
+      - TCP_TUNNEL_ENABLED=true
     restart: unless-stopped
     stop_signal: SIGKILL
     ports:
-      - 6080:6080
-      - 5001:5000
+      - 3000:3000
+      - 5000:5000

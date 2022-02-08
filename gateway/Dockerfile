@@ -19,7 +19,8 @@ RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
 FROM debian:stable-slim
 
-ARG BUILD
+ARG VERSION
+ENV VERSION=${BUILD}
 
 # procps is needed for twsstart.sh on Debian
 RUN apt update && \
@@ -52,6 +53,10 @@ COPY config/proxy.yaml ./config.yaml
 
 RUN chmod +x ./*.sh /opt/ibc/**.sh
 
-EXPOSE 5000 3000
+# 3000: noVNC (0.0.0.0)
+# 5000: TCP Tunnel (0.0.0.0)
+# 4001: Gateway Live Trading (127.0.0.1)
+# 4002: Gateway Virtual Trading (127.0.0.1)
+EXPOSE 5000 3000 4001 4002
 
 CMD [ "./run.sh" ]
