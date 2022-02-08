@@ -2,9 +2,10 @@
 
 ## Features
 
-- **Fully containerized** IBKR Gateway instance + [IBC Alpha](https://github.com/IbcAlpha) with no external dependencies
-- **Supports noVNC** (a browser-based VNC client, proxied via Websockify)
-- **Autorestarts automatically** (for example, due to daily logoff)
+- **Fully containerized** IBKR Gateway instance + [IBC Alpha](https://github.com/IbcAlpha) with no external dependencies,
+- **Supports noVNC** (a browser-based VNC client, proxied via Websockify),
+- **Autorestarts automatically** (for example, due to daily logoff),
+- **Helm chart** for Kubernetes.
 
 ## Getting Started
 
@@ -15,6 +16,8 @@
   - TWS API is available on port `5000` by default
   - You can view the noVNC client at [localhost:6080/vnc.html](http://localhost:6080/vnc.html)
 - To stop: `docker-compose down`
+
+See [KUBERNETES.md](KUBERNETES.md) to execute IB Gateway in Kubernetes.
 
 ## Paper vs Live Account
 
