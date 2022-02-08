@@ -1,0 +1,87 @@
+gateway:
+  imagePullSecrets:
+    - name: reg-internal
+
+  debug: false
+  config: 
+    IbkrCredentials: "ibkr-credentials"
+    trading: "live"
+
+  jvm:
+    Xmx: "1350"
+    XX:
+      ConcGCThreads: 5
+      InitiatingHeapOccupancyPercent: 70
+      ParallelGCThreads: 20
+      MaxGCPauseMillis: 200
+    installer:
+      uuid: "3046c7e3-ffbd-4699-a848-117342ff43ee"
+
+  resources:
+    limits:
+      cpu: 350m
+      memory: 1400Mi
+    requests:
+      cpu: 350m
+      memory: 1400Mi
+
+sidecars:
+  volumes:
+    - name: ibkr-positions-worker-config
+      secret:
+        secretName: ibkr-positions-worker-config
+    - name: ibkr-companies-worker-config
+      secret:
+        secretName: ibkr-companies-worker-config
+
+  containers:
+    - name: positions-worker
+      image: "rg.nl-ams.scw.cloud/arktos-venture/ibkr-positions-worker:0.0.1"
+      imagePullPolicy: Always
+      securityContext:
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+        runAsUser: 10001
+      volumeMounts:
+        - name: ibkr-positions-worker-config
+          mountPath: /home/noroot/config.yaml
+          subPath: config.yaml
+      resources:
+        limits:
+          cpu: 50m
+          memory: 64Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
+    - name: companies-worker
+      image: "rg.nl-ams.scw.cloud/arktos-venture/ibkr-companies-worker:0.0.1"
+      imagePullPolicy: Always
+      securityContext:
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+        runAsUser: 10001
+      volumeMounts:
+        - name: ibkr-companies-worker-config
+          mountPath: /home/noroot/config.yaml
+          subPath: config.yaml
+      resources:
+        limits:
+          cpu: 50m
+          memory: 64Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
+
+nodeSelector:
+  kubernetes.io/arch: amd64
+  kubernetes.io/os: linux
+
+tolerations: []
+
+affinity: {}

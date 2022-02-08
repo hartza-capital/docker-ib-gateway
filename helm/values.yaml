@@ -1,0 +1,96 @@
+# Default values for ibkr-gateway.
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+gateway:
+  image:
+    repository: quay.io/arktos-venture/ibkr-gateway
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  env:
+    - name: VNC_SERVER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: vnc-credentials
+          key: password
+
+  debug: false
+  config: 
+    IbkrCredentials: "ibkr-credentials"
+    trading: "live"
+
+  podAnnotations: {}
+  podSecurityContext:
+    fsGroup: 10001
+
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 10001
+
+  jvm:
+    Xmx: "768"
+    XX:
+      ConcGCThreads: 5
+      InitiatingHeapOccupancyPercent: 70
+      ParallelGCThreads: 20
+      MaxGCPauseMillis: 200
+    installer:
+      uuid: "3046c7e3-ffbd-4699-a848-117342ff43ee"
+
+  resources:
+    limits:
+      cpu: 300m
+      memory: 780Mi
+    requests:
+      cpu: 300m
+      memory: 780Mi
+
+sidecars:
+  volumes:
+    - name: data-worker-config
+      secret:
+        secretName: data-worker-config
+
+  containers:
+    - name: data-worker-config
+      image: "rg.nl-ams.scw.cloud/arktos-venture/ibkr-worker:0.0.1"
+      imagePullPolicy: Always
+      securityContext:
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+        runAsUser: 10001
+      volumeMounts:
+        - name: data-worker-config
+          mountPath: /home/noroot/config.yaml
+          subPath: config.yaml
+      resources:
+        limits:
+          cpu: 50m
+          memory: 64Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
+
+nodeSelector:
+  k8s.scaleway.com/pool-name: app
+  kubernetes.io/arch: amd64
+  kubernetes.io/os: linux
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ibkr-gateway.fullname" . }}-vmoptions
+  labels:
+    {{- include "ibkr-gateway.labels" . | nindent 4 }}
+data:
+  ibgateway.vmoptions: |-
+    -Xmx{{ .Values.gateway.jvm.Xmx | default "768" }}m
+    -XX:+UseG1GC
+    -XX:MaxGCPauseMillis={{ .Values.gateway.jvm.XX.MaxGCPauseMillis | default "200" }}
+    -XX:ParallelGCThreads={{ .Values.gateway.jvm.XX.ParallelGCThreads | default "20" }}
+    -XX:ConcGCThreads={{ .Values.gateway.jvm.XX.ConcGCThreads | default "5" }}
+    -XX:InitiatingHeapOccupancyPercent={{ .Values.gateway.jvm.XX.InitiatingHeapOccupancyPercent | default "70" }}
+    -Dinstaller.uuid={{ required "UUID JVM requirement" .Values.gateway.jvm.installer.uuid }}
+    -DvmOptionsPath=/home/trader/Jts/ibgateway/{{ include "ibkr-gateway.version" . }}/ibgateway.vmoptions
+    -Dsun.awt.nopixfmt=true
+    -Dsun.java2d.noddraw=true
+    -Dswing.boldMetal=false
+    -Dsun.locale.formatasdefault=true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ibkr-gateway.fullname" . }}-proxy
+  labels:
+    {{- include "ibkr-gateway.labels" . | nindent 4 }}
+data:
+  proxy.yaml: |-
+    logOptions:
+      level: info
+      format: json
+    socket:
+      listen:
+        protocol: tcp4
+        address: 0.0.0.0:5000
+      destination: 
+        protocol: tcp6
+        address: localhost:{{ if eq .Values.gateway.config.trading "live" }}4001{{ else }}4002{{ end }}
+      timeout: 3s
+    health:
+      listen: 0.0.0.0:3000
+      timeout: 3s

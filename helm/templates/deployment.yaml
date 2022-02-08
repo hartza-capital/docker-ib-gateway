@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ibkr-gateway.fullname" . }}
+  labels:
+    {{- include "ibkr-gateway.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit | default 3 }}
+  selector:
+    matchLabels:
+      {{- include "ibkr-gateway.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/gateway: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- with .Values.gateway.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "ibkr-gateway.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.gateway.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.gateway.podSecurityContext | nindent 8 }}
+      containers:
+        - name: gateway
+          securityContext:
+            {{- toYaml .Values.gateway.securityContext | nindent 12 }}
+          image: "{{ .Values.gateway.image.repository }}:{{ .Values.gateway.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.gateway.image.pullPolicy }}
+          {{- with .Values.gateway.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: vnc
+              containerPort: 6080
+              protocol: TCP
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+            - name: socket
+              containerPort: 5000
+              protocol: TCP
+          {{- if eq .Values.gateway.debug false }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 500
+            periodSeconds: 20
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 45
+            periodSeconds: 15
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          {{- end }}
+          volumeMounts:
+            - name: {{ include "ibkr-gateway.fullname" . }}-config
+              mountPath: /opt/ibc/config.ini
+              subPath: config.ini
+            - name: {{ include "ibkr-gateway.fullname" . }}-vmoptions
+              mountPath: /home/trader/Jts/ibgateway/{{ include "ibkr-gateway.version" . }}/ibgateway.vmoptions
+              subPath: ibgateway.vmoptions
+            - name: {{ include "ibkr-gateway.fullname" . }}-proxy
+              mountPath: /home/trader/proxy.yaml
+              subPath: proxy.yaml
+          resources:
+            {{- toYaml .Values.gateway.resources | nindent 12 }}
+        {{- range .Values.sidecars.containers }}
+        - name: {{ .name }}
+          securityContext:
+            {{- toYaml .securityContext | nindent 12 }}
+          image: {{ .image | quote }}
+          imagePullPolicy: {{ .imagePullPolicy }}
+          {{- with .volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      volumes:
+        - name: {{ include "ibkr-gateway.fullname" . }}-config
+          secret:
+            secretName: {{ required "credentials IBKR is required" .Values.gateway.config.IbkrCredentials }}
+        - name: {{ include "ibkr-gateway.fullname" . }}-vmoptions
+          configMap:
+            name: {{ include "ibkr-gateway.fullname" . }}-vmoptions
+        - name: {{ include "ibkr-gateway.fullname" . }}-proxy
+          configMap:
+            name: {{ include "ibkr-gateway.fullname" . }}-proxy
+        {{- with .Values.sidecars.volumes }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
