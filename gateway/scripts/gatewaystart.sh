@@ -18,7 +18,7 @@
 #=============================================================================+
 
 
-TWS_MAJOR_VRSN=$VERSION
+TWS_MAJOR_VRSN=$(ls ~/Jts/ibgateway/ | sed "s/.*\///")
 IBC_INI=/opt/ibc/config.ini
 TRADING_MODE=
 TWOFA_TIMEOUT_ACTION=exit
