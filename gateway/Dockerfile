@@ -19,19 +19,11 @@ RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
 FROM debian:stable-slim
 
-ARG VERSION
-ENV VERSION=${BUILD}
-
 # procps is needed for twsstart.sh on Debian
 RUN apt update && \
     apt install -y \
-    procps \
-    python3 \
-    novnc \ 
     x11vnc \
-    xterm \
-    xvfb \
-    net-tools
+    xvfb
 
 RUN useradd -m -u 10001 trader
 
@@ -57,6 +49,6 @@ RUN chmod +x ./*.sh /opt/ibc/**.sh
 # 5000: TCP Tunnel (0.0.0.0)
 # 4001: Gateway Live Trading (127.0.0.1)
 # 4002: Gateway Virtual Trading (127.0.0.1)
-EXPOSE 5000 3000 4001 4002
+EXPOSE 5000 5900 4001 4002
 
 CMD [ "./run.sh" ]
