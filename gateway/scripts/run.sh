@@ -16,9 +16,6 @@ else
     x11vnc -ncache 10 -ncache_cr -display :0 -forever -shared -bg -noipv6 &
 fi
 
-# Start noVNC server
-/usr/share/novnc/utils/launch.sh --vnc localhost:5900 &
-
 # Export ports of IB Gateway
 if [ "$TCP_TUNNEL_ENABLED" ]; then
     ./fork_ports_delayed.sh &

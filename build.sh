@@ -8,7 +8,7 @@ MAJOR=$(echo $BUILD | grep -o '^[0-9]*')
 MINOR=$(echo $BUILD | grep -o '^[0-9]*.[0-9]*')
 
 echo "Build images $BUILD"
-docker build ./gateway -t quay.io/arktos-venture/ibkr-gateway:$BUILD --build-arg IBC_VERSION=$IBC_VERSION --build-arg VERSION=$MINOR --platform linux/amd64
+docker build ./gateway -t quay.io/arktos-venture/ibkr-gateway:$BUILD --build-arg IBC_VERSION=$IBC_VERSION --platform linux/amd64
 docker tag quay.io/arktos-venture/ibkr-gateway:$BUILD quay.io/arktos-venture/ibkr-gateway:latest
 docker tag quay.io/arktos-venture/ibkr-gateway:$BUILD quay.io/arktos-venture/ibkr-gateway:$MAJOR
 docker tag quay.io/arktos-venture/ibkr-gateway:$BUILD quay.io/arktos-venture/ibkr-gateway:$MINOR
