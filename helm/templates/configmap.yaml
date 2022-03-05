@@ -18,6 +18,7 @@ data:
     -Dsun.java2d.noddraw=true
     -Dswing.boldMetal=false
     -Dsun.locale.formatasdefault=true
+{{- if .Values.gateway.config.proxy }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -41,3 +42,4 @@ data:
     health:
       listen: 0.0.0.0:3000
       timeout: 3s
+{{- end }}

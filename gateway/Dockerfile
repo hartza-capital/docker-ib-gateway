@@ -19,11 +19,9 @@ RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
 FROM debian:stable-slim
 
-# procps is needed for twsstart.sh on Debian
 RUN apt update && \
-    apt install -y \
-    x11vnc \
-    xvfb
+    apt install -y x11vnc xvfb && \
+    apt clean
 
 RUN useradd -m -u 10001 trader
 
@@ -45,8 +43,8 @@ COPY config/proxy.yaml ./config.yaml
 
 RUN chmod +x ./*.sh /opt/ibc/**.sh
 
-# 3000: noVNC (0.0.0.0)
 # 5000: TCP Tunnel (0.0.0.0)
+# 5900: VNC (0.0.0.0)
 # 4001: Gateway Live Trading (127.0.0.1)
 # 4002: Gateway Virtual Trading (127.0.0.1)
 EXPOSE 5000 5900 4001 4002
