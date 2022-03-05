@@ -1,11 +1,38 @@
 gateway:
+  image:
+    repository: quay.io/arktos-venture/ibkr-gateway
+    pullPolicy: IfNotPresent
+    tag: "10.14.1b"
+
   imagePullSecrets:
-    - name: reg-internal
+  - name: reg-internal
+  nameOverride: ""
+  fullnameOverride: ""
+
+  env:
+    - name: VNC_SERVER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: ibkr-gateway
+          key: vnc-password
 
   debug: false
   config: 
     IbkrCredentials: "ibkr-credentials"
-    trading: "live"
+    proxy: false
+    live: true
+
+  podAnnotations: {}
+  podSecurityContext:
+    fsGroup: 10001
+
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 10001
 
   jvm:
     Xmx: "1350"
@@ -35,7 +62,7 @@ sidecars:
         secretName: ibkr-companies-worker-config
 
   containers:
-    - name: positions-worker
+    - name: positions
       image: "rg.nl-ams.scw.cloud/arktos-venture/ibkr-positions-worker:0.0.1"
       imagePullPolicy: Always
       securityContext:
@@ -45,10 +72,6 @@ sidecars:
         readOnlyRootFilesystem: false
         runAsNonRoot: true
         runAsUser: 10001
-      volumeMounts:
-        - name: ibkr-positions-worker-config
-          mountPath: /home/noroot/config.yaml
-          subPath: config.yaml
       resources:
         limits:
           cpu: 50m
@@ -56,7 +79,7 @@ sidecars:
         requests:
           cpu: 50m
           memory: 64Mi
-    - name: companies-worker
+    - name: companies
       image: "rg.nl-ams.scw.cloud/arktos-venture/ibkr-companies-worker:0.0.1"
       imagePullPolicy: Always
       securityContext:
@@ -66,10 +89,6 @@ sidecars:
         readOnlyRootFilesystem: false
         runAsNonRoot: true
         runAsUser: 10001
-      volumeMounts:
-        - name: ibkr-companies-worker-config
-          mountPath: /home/noroot/config.yaml
-          subPath: config.yaml
       resources:
         limits:
           cpu: 50m

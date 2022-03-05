@@ -13,7 +13,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/gateway: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       {{- with .Values.gateway.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -24,6 +24,8 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "ibkr-gateway.serviceAccountName" . }}
+      automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.gateway.podSecurityContext | nindent 8 }}
       containers:
@@ -38,28 +40,28 @@ spec:
           {{- end }}
           ports:
             - name: vnc
-              containerPort: 6080
-              protocol: TCP
-            - name: http
-              containerPort: 3000
+              containerPort: 5900
               protocol: TCP
             - name: socket
+              containerPort: {{ if .Values.gateway.config.live }}4001{{ else }}4002{{ end }}
+              protocol: TCP
+          {{- if .Values.gateway.config.proxy }}
+            - name: tunnel-socket
               containerPort: 5000
               protocol: TCP
+          {{- end }}
           {{- if eq .Values.gateway.debug false }}
           livenessProbe:
-            httpGet:
-              path: /healthz
-              port: http
+            tcpSocket:  
+              port: {{ if .Values.gateway.config.live }}4001{{ else }}4002{{ end }}
             initialDelaySeconds: 500
             periodSeconds: 20
             timeoutSeconds: 3
             successThreshold: 1
             failureThreshold: 3
           readinessProbe:
-            httpGet:
-              path: /healthz
-              port: http
+            tcpSocket:  
+              port: {{ if .Values.gateway.config.live }}4001{{ else }}4002{{ end }}
             initialDelaySeconds: 45
             periodSeconds: 15
             timeoutSeconds: 3
@@ -73,9 +75,11 @@ spec:
             - name: {{ include "ibkr-gateway.fullname" . }}-vmoptions
               mountPath: /home/trader/Jts/ibgateway/{{ include "ibkr-gateway.version" . }}/ibgateway.vmoptions
               subPath: ibgateway.vmoptions
+            {{- if .Values.gateway.config.proxy }}
             - name: {{ include "ibkr-gateway.fullname" . }}-proxy
               mountPath: /home/trader/proxy.yaml
               subPath: proxy.yaml
+            {{- end }}
           resources:
             {{- toYaml .Values.gateway.resources | nindent 12 }}
         {{- range .Values.sidecars.containers }}
@@ -84,10 +88,10 @@ spec:
             {{- toYaml .securityContext | nindent 12 }}
           image: {{ .image | quote }}
           imagePullPolicy: {{ .imagePullPolicy }}
-          {{- with .volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            - name: ibkr-{{ .name }}-worker
+              mountPath: /home/noroot/config.yaml
+              subPath: config.yaml
           {{- with .resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -96,13 +100,26 @@ spec:
       volumes:
         - name: {{ include "ibkr-gateway.fullname" . }}-config
           secret:
-            secretName: {{ required "credentials IBKR is required" .Values.gateway.config.IbkrCredentials }}
+            secretName: ibkr-gateway
+            items:
+              - key: config.ini
+                path: config.ini
+        {{- range .Values.sidecars.containers }}
+        - name: ibkr-{{ .name }}-worker
+          secret:
+            secretName: ibkr-workers
+            items:
+              - key: {{ .name }}
+                path: config.yaml
+        {{- end }}
         - name: {{ include "ibkr-gateway.fullname" . }}-vmoptions
           configMap:
             name: {{ include "ibkr-gateway.fullname" . }}-vmoptions
+        {{- if .Values.gateway.config.proxy }}
         - name: {{ include "ibkr-gateway.fullname" . }}-proxy
           configMap:
             name: {{ include "ibkr-gateway.fullname" . }}-proxy
+        {{- end }}
         {{- with .Values.sidecars.volumes }}
           {{- toYaml . | nindent 8 }}
         {{- end }}

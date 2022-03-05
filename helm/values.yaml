@@ -1,7 +1,7 @@
 # Default values for ibkr-gateway.
 
 serviceAccount:
-  create: true
+  create: false
   annotations: {}
   name: ""
 
@@ -9,23 +9,24 @@ gateway:
   image:
     repository: quay.io/arktos-venture/ibkr-gateway
     pullPolicy: IfNotPresent
-    tag: "latest"
+    tag: ""
 
   imagePullSecrets: []
   nameOverride: ""
   fullnameOverride: ""
 
-  env:
-    - name: VNC_SERVER_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: vnc-credentials
-          key: password
+  env: []
+    # - name: VNC_SERVER_PASSWORD
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: ibkr-gateway
+    #       key: vnc-password
 
   debug: false
   config: 
-    IbkrCredentials: "ibkr-credentials"
-    trading: "live"
+    IbkrCredentials: "ibkr-gateway"
+    proxy: false
+    live: true
 
   podAnnotations: {}
   podSecurityContext:
@@ -87,7 +88,6 @@ sidecars:
           memory: 64Mi
 
 nodeSelector:
-  k8s.scaleway.com/pool-name: app
   kubernetes.io/arch: amd64
   kubernetes.io/os: linux
 
