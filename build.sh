@@ -6,7 +6,7 @@ echo "Extract versions"
 BUILD=$(curl -s https://download2.interactivebrokers.com/installers/ibgateway/latest-standalone/version.json | grep -o '{.*}' | jq -r .buildVersion)
 MAJOR=$(echo $BUILD | grep -o '^[0-9]*')
 MINOR=$(echo $BUILD | grep -o '^[0-9]*.[0-9]*')
-IMAGE=quay.io/arktos-venture/ibkr-gateway
+IMAGE=quay.io/arktos-fund/ibkr-gateway
 
 echo "Build images $BUILD"
 docker build ./gateway --platform linux/amd64 --build-arg IBC_VERSION=$IBC_VERSION -t $IMAGE:$BUILD
