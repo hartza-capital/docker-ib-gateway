@@ -2,15 +2,14 @@ version: "3.9"
 
 services:
   gateway:
-    image: quay.io/arktos-venture/ibkr-gateway:latest
+    image: quay.io/arktos-fund/ibkr-gateway:stable
     volumes:
-      - ./gateway/config/config.ini:/opt/ibc/config.ini
-      - ./gateway/config/proxy.yaml:/home/trader/proxy.yaml
+      - ./gateway/config.ini:/opt/ibc/config.ini
       - ./gateway/scripts/gatewaystart.sh:/opt/ibc/scripts/gatewaystart.sh
     environment:
-      - TCP_TUNNEL_ENABLED=true
+      - VNC_SERVER_PASSWORD=test
     restart: unless-stopped
     stop_signal: SIGKILL
     ports:
       - 5900:5900
-      - 5000:5000
+      - 4001:4001
