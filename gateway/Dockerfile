@@ -1,5 +1,6 @@
 FROM debian:stable-slim AS build
 
+ARG CHANNEL
 ARG IBC_VERSION
 
 RUN apt update && \
@@ -8,7 +9,7 @@ RUN apt update && \
     unzip \ 
     wget
 
-RUN wget https://download2.interactivebrokers.com/installers/ibgateway/latest-standalone/ibgateway-latest-standalone-linux-x64.sh -O install.sh \
+RUN wget https://download2.interactivebrokers.com/installers/ibgateway/${CHANNEL}-standalone/ibgateway-${CHANNEL}-standalone-linux-x64.sh -O install.sh \
     && chmod +x install.sh
 
 RUN wget https://github.com/IbcAlpha/IBC/releases/download/${IBC_VERSION}/IBCLinux-${IBC_VERSION}.zip -O ibc.zip \
@@ -20,7 +21,7 @@ RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 FROM debian:stable-slim
 
 RUN apt update && \
-    apt install -y x11vnc xvfb && \
+    apt install -y x11vnc xvfb procps && \
     apt clean
 
 RUN useradd -m -u 10001 trader
@@ -33,20 +34,14 @@ RUN yes '' | ./install.sh \
     && rm ./install.sh
 
 COPY --chown=trader --from=build /opt/ibc /opt/ibc
-
-COPY --chown=trader config/config.ini ./scripts/gatewaystart.sh /opt/ibc/
+COPY --chown=trader config.ini ./scripts/gatewaystart.sh /opt/ibc/
 COPY --chown=trader ./scripts/run.sh .
 COPY --chown=trader ./scripts/fork_ports_delayed.sh .
-
-COPY --from=quay.io/arktos-venture/tcp-forward:0.0.4 /go ./proxy
-COPY config/proxy.yaml ./config.yaml
-
 RUN chmod +x ./*.sh /opt/ibc/**.sh
 
-# 5000: TCP Tunnel (0.0.0.0)
 # 5900: VNC (0.0.0.0)
 # 4001: Gateway Live Trading (127.0.0.1)
 # 4002: Gateway Virtual Trading (127.0.0.1)
-EXPOSE 5000 5900 4001 4002
+EXPOSE 5900 4001 4002
 
 CMD [ "./run.sh" ]
