@@ -15,7 +15,7 @@ The base of project is based on [extrange/ibkr-docker](https://github.com/extran
 ## Getting Started
 
 - Build the image:
-  - `./build.sh`
+  - `./build.sh {stable||latest}`
 - Start the container:
   - `docker-compose up -d`
   - TWS API is available on port `5000` by default
