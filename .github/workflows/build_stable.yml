@@ -30,4 +30,4 @@ jobs:
           password: ${{ secrets.QUAY_TOKEN }}
 
       - name: Run build
-        run: ./build.sh latest --push
+        run: ./build.sh stable --push
