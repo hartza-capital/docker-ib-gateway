@@ -14,7 +14,8 @@ if [ "$CHANNEL" = "latest" ]; then
     BUILD=$(curl -s $URL_DOWNLOAD/latest-standalone/version.json | grep -o '{.*}' | jq -r .buildVersion)
 elif [ "$CHANNEL" = "stable" ]; then
     BUILD=$(curl -s $URL_DOWNLOAD/stable-standalone/version.json | grep -o '{.*}' | jq -r .buildVersion)
-    IBC_VERSION=3.12.0
+    # fix value if the diff of version is too large
+    IBC_VERSION=3.15.2
 else
     echo "channel ${CHANNEL} isn't available"
     exit 1
