@@ -32,8 +32,6 @@ This container is setup to connect to a paper account. To switch to a live accou
   - `TradingMode=live`
   - `IbLoginId=LOGIN`
   - `IbPassword=XXXX`
-- Modify `gateway/config/proxy.yaml`, with the live or paper port:
-  - `address: 127.0.0.1:4001`
 
 You will have to restart the container after making these changes.
 
