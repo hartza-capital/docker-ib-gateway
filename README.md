@@ -1,9 +1,10 @@
 # IBKR Gateway in Container
 
-![Build](https://github.com/arktos-venture/docker-ibkr-gateway/actions/workflows/container.yml/badge.svg?branch=master)
+![Latest](https://github.com/arktos-fund/docker-ibkr-gateway/actions/workflows/build_latest.yml/badge.svg?branch=master)
+![Stable](https://github.com/arktos-fund/docker-ibkr-gateway/actions/workflows/build_stable.yml/badge.svg?branch=master)
 
 The base of project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr-docker), but the goal/method is different.   
-**Arktos Venture** isn't affiliated to **Interactive Brokers**.
+**Arktos Fund** isn't affiliated to **Interactive Brokers**.
 
 ## Features
 
@@ -18,8 +19,7 @@ The base of project is based on [extrange/ibkr-docker](https://github.com/extran
   - `./build.sh {stable||latest}`
 - Start the container:
   - `docker-compose up -d`
-  - TWS API is available on port `5000` by default
-  - You can view the noVNC client at [localhost:6080/vnc.html](http://localhost:6080/vnc.html)
+  - start VNC Client (url: `127.0.0.1:5900`, password `test`)
 - To stop: `docker-compose down`
 
 See [KUBERNETES.md](KUBERNETES.md) to execute IB Gateway in Kubernetes.
@@ -32,8 +32,6 @@ This container is setup to connect to a paper account. To switch to a live accou
   - `TradingMode=live`
   - `IbLoginId=LOGIN`
   - `IbPassword=XXXX`
-- Modify `gateway/config/proxy.yaml`, with the live or paper port:
-  - `address: 127.0.0.1:4001`
 
 You will have to restart the container after making these changes.
 

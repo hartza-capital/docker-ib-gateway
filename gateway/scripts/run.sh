@@ -16,11 +16,6 @@ else
     x11vnc -ncache 10 -ncache_cr -display :0 -forever -shared -bg -noipv6 &
 fi
 
-# Export ports of IB Gateway
-if [ "$TCP_TUNNEL_ENABLED" ]; then
-    ./fork_ports_delayed.sh &
-fi
-
 # Start TWS and automatically restart if it dies
 while true; do
     /opt/ibc/gatewaystart.sh -inline

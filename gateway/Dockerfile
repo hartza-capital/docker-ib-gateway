@@ -36,7 +36,6 @@ RUN yes '' | ./install.sh \
 COPY --chown=trader --from=build /opt/ibc /opt/ibc
 COPY --chown=trader config.ini ./scripts/gatewaystart.sh /opt/ibc/
 COPY --chown=trader ./scripts/run.sh .
-COPY --chown=trader ./scripts/fork_ports_delayed.sh .
 RUN chmod +x ./*.sh /opt/ibc/**.sh
 
 # 5900: VNC (0.0.0.0)
