@@ -4,7 +4,7 @@
 ![Stable](https://github.com/arktos-fund/docker-ibkr-gateway/actions/workflows/build_stable.yml/badge.svg?branch=master)
 
 The base of project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr-docker), but the goal/method is different.   
-**Arktos Venture** isn't affiliated to **Interactive Brokers**.
+**Arktos Fund** isn't affiliated to **Interactive Brokers**.
 
 ## Features
 
@@ -19,8 +19,7 @@ The base of project is based on [extrange/ibkr-docker](https://github.com/extran
   - `./build.sh {stable||latest}`
 - Start the container:
   - `docker-compose up -d`
-  - TWS API is available on port `5000` by default
-  - You can view the noVNC client at [localhost:6080/vnc.html](http://localhost:6080/vnc.html)
+  - start VNC Client (url: `127.0.0.1:5900`, password `test`)
 - To stop: `docker-compose down`
 
 See [KUBERNETES.md](KUBERNETES.md) to execute IB Gateway in Kubernetes.
