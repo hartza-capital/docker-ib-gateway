@@ -1,5 +1,3 @@
 # Kubernetes
 
-An Helm chart as created for our dev Stack, **it's not used in production**.
-
-## TODO
+Look : https://github.com/arktos-fund/helm-charts/tree/master/charts/ibkr-gateway
