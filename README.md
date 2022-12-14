@@ -1,6 +1,7 @@
 # IBKR Gateway in Container
 
-![Build](https://github.com/arktos-venture/docker-ibkr-gateway/actions/workflows/container.yml/badge.svg?branch=master)
+![Latest](https://github.com/arktos-fund/docker-ibkr-gateway/actions/workflows/build_latest.yml/badge.svg?branch=master)
+![Stable](https://github.com/arktos-fund/docker-ibkr-gateway/actions/workflows/build_stable.yml/badge.svg?branch=master)
 
 The base of project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr-docker), but the goal/method is different.   
 **Arktos Venture** isn't affiliated to **Interactive Brokers**.
