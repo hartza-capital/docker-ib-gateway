@@ -1,11 +1,10 @@
 FROM debian:stable-slim AS build
 
-ARG CHANNEL
-ARG IBC_VERSION
+ARG CHANNEL=latest
+ARG IBC_VERSION=3.15.2
 
 RUN apt update && \
     apt install -y \
-    git \
     unzip \ 
     wget
 
@@ -20,9 +19,14 @@ RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
 FROM debian:stable-slim
 
+ARG QUAY_EXPIRE=never
+
+LABEL maintainer="oss@arktos.fund"
+LABEL quay.expires-after=${QUAY_EXPIRE}
+
 RUN apt update && \
     apt install -y x11vnc xvfb procps && \
-    apt clean
+    rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -u 10001 trader
 
@@ -38,9 +42,9 @@ COPY --chown=trader config.ini ./scripts/gatewaystart.sh /opt/ibc/
 COPY --chown=trader ./scripts/run.sh .
 RUN chmod +x ./*.sh /opt/ibc/**.sh
 
-# 5900: VNC (0.0.0.0)
-# 4001: Gateway Live Trading (127.0.0.1)
-# 4002: Gateway Virtual Trading (127.0.0.1)
+# 5900: VNC
+# 4001: Gateway Live Trading
+# 4002: Gateway Virtual Trading
 EXPOSE 5900 4001 4002
 
 CMD [ "./run.sh" ]
