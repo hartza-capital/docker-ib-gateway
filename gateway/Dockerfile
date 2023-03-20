@@ -1,7 +1,7 @@
 FROM debian:stable-slim AS build
 
 ARG CHANNEL=latest
-ARG IBC_VERSION=3.15.2
+ARG IBC_VERSION=3.16.2
 
 RUN apt update && \
     apt install -y \

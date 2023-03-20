@@ -14,7 +14,7 @@ if [ "$CHANNEL" = "latest" ]; then
     docker build ./gateway --platform linux/amd64 --build-arg CHANNEL=$CHANNEL --build-arg QUAY_EXPIRE=12w -t $IMAGE:$BUILD
 elif [ "$CHANNEL" = "stable" ]; then
     BUILD=$(curl -s $URL_DOWNLOAD | grep -o '{.*}' | jq -r .buildVersion)
-    docker build ./gateway --platform linux/amd64 --build-arg CHANNEL=$CHANNEL --build-arg IBC_VERSION=3.15.2 -t $IMAGE:$BUILD
+    docker build ./gateway --platform linux/amd64 --build-arg CHANNEL=$CHANNEL -t $IMAGE:$BUILD
 else
     echo "channel ${CHANNEL} isn't available"
     exit 1
