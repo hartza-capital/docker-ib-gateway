@@ -17,7 +17,8 @@ RUN wget https://github.com/IbcAlpha/IBC/releases/download/${IBC_VERSION}/IBCLin
 # Set permissions
 RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
-FROM debian:stable-slim
+# Python base for running custom scripts
+FROM python:3.11.3-slim-bullseye
 
 ARG QUAY_EXPIRE=never
 
