@@ -18,7 +18,7 @@ RUN wget https://github.com/IbcAlpha/IBC/releases/download/${IBC_VERSION}/IBCLin
 RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
 # Python base for running custom scripts
-FROM python:3.11.3-slim-bullseye
+FROM python:3.11.4-slim-bullseye
 
 ARG QUAY_EXPIRE=never
 
