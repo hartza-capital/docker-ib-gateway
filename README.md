@@ -4,11 +4,11 @@
 ![Stable](https://github.com/hartza-capital/docker-ib-gateway/actions/workflows/build_stable.yml/badge.svg?branch=master)
 
 The base of project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr-docker), but the goal/method is different.   
-**Arktos Fund** isn't affiliated to **Interactive Brokers**.
+**Hartza Capital** isn't affiliated to **Interactive Brokers**.
 
 ## Features
 
-- **Fully containerized** IBKR Gateway instance + [IBC Alpha](https://github.com/IbcAlpha) with no external dependencies,
+- **Fully containerized** IB Gateway instance + [IBC Alpha](https://github.com/IbcAlpha) with no external dependencies,
 - **Autorestarts automatically** (for example, due to daily logoff),
 - **Supports VNC**,
 - **Helm chart** for Kubernetes.
