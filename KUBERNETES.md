@@ -1,3 +1,3 @@
 # Kubernetes
 
-Look : https://github.com/arktos-fund/helm-charts/tree/master/charts/ibkr-gateway
+Look : https://github.com/hartza-capital/helm-charts/tree/master/charts/ib-gateway

@@ -1,6 +1,7 @@
 FROM debian:stable-slim AS build
 
 ARG CHANNEL=latest
+ARG IBC_RELEASE=3.16.2
 ARG IBC_VERSION=3.16.2
 
 RUN apt update && \
@@ -11,18 +12,18 @@ RUN apt update && \
 RUN wget https://download2.interactivebrokers.com/installers/ibgateway/${CHANNEL}-standalone/ibgateway-${CHANNEL}-standalone-linux-x64.sh -O install.sh \
     && chmod +x install.sh
 
-RUN wget https://github.com/IbcAlpha/IBC/releases/download/${IBC_VERSION}/IBCLinux-${IBC_VERSION}.zip -O ibc.zip \
+RUN wget https://github.com/IbcAlpha/IBC/releases/download/${IBC_RELEASE}/IBCLinux-${IBC_VERSION}.zip -O ibc.zip \
     && unzip ibc.zip -d /opt/ibc
 
 # Set permissions
 RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
 # Python base for running custom scripts
-FROM python:3.11.4-slim-bullseye
+FROM python:3.12.0-slim-bookworm
 
 ARG QUAY_EXPIRE=never
 
-LABEL maintainer="oss@arktos.fund"
+LABEL maintainer="oss@hartza.capital"
 LABEL quay.expires-after=${QUAY_EXPIRE}
 
 RUN apt update && \

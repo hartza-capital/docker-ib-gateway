@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   gateway:
-    image: quay.io/arktos-fund/ibkr-gateway:stable
+    image: quay.io/hartza-capital/ib-gateway:stable
     volumes:
       - ./gateway/config.ini:/opt/ibc/config.ini
       - ./gateway/scripts/gatewaystart.sh:/opt/ibc/scripts/gatewaystart.sh
