@@ -2,7 +2,7 @@ FROM debian:stable-slim AS build
 
 ARG CHANNEL=latest
 ENV IB_GATEWAY_RELEASE_CHANNEL=$CHANNEL
-ENV IBC_VERSION=3.21.1
+ENV IBC_VERSION=3.21.2
 
 RUN apt update && \
     apt install -y \
