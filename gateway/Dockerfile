@@ -1,7 +1,9 @@
 FROM debian:stable-slim AS build
 
 ARG CHANNEL=latest
+ARG BUILD
 ENV IB_GATEWAY_RELEASE_CHANNEL=$CHANNEL
+ENV IB_GATEWAY_VERSION=$BUILD
 ENV IBC_VERSION=3.21.2
 
 RUN apt update && \
@@ -19,7 +21,7 @@ RUN wget https://download2.interactivebrokers.com/installers/ibgateway/${CHANNEL
 RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
 # Python base for running custom scripts
-FROM python:3.12.0-slim-bookworm
+FROM python:3.13-slim-bookworm
 
 LABEL org.opencontainers.image.source=https://github.com/hartza-capital/ib-gateway-docker
 LABEL org.opencontainers.image.url=https://quay.io/repository/hartza-capital/ib-gateway
