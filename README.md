@@ -1,45 +1,39 @@
-# IB Gateway in Container
+<!-- filepath: /Users/perriea/go/src/github.com/hartza-capital/docker-ib-gateway/README.md -->
+# Docker IB Gateway
 
-![Latest](https://github.com/hartza-capital/docker-ib-gateway/actions/workflows/build_latest.yml/badge.svg?branch=master)
-![Stable](https://github.com/hartza-capital/docker-ib-gateway/actions/workflows/build_stable.yml/badge.svg?branch=master)
+## What is it?
 
-The base of project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr-docker), but the goal/method is different.   
-**Hartza Capital** isn't affiliated to **Interactive Brokers**.
+A project that containerizes **IB Gateway** (Interactive Brokers Gateway) with **IBC** (Interactive Brokers Controller) to enable automated trading without a graphical interface. 
 
-## Features
+This project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr-docker) but with a different approach by **Hartza Capital**.
 
-- **Fully containerized** IB Gateway instance + [IBC Alpha](https://github.com/IbcAlpha) with no external dependencies,
-- **Autorestarts automatically** (for example, due to daily logoff),
-- **Supports VNC**,
-- **Helm chart** for Kubernetes.
+## Build Status
 
-## Getting Started
+![Latest](https://github.com/hartza-capital/docker-ib-gateway/actions/workflows/build_latest.yml/badge.svg?branch=main)
+![Stable](https://github.com/hartza-capital/docker-ib-gateway/actions/workflows/build_stable.yml/badge.svg?branch=main)
 
-- Build the image:
-  - `./build.sh {stable||latest}`
-- Start the container:
-  - `docker-compose up -d`
-  - start VNC Client (url: `127.0.0.1:5900`, password `test`)
-- To stop: `docker-compose down`
+## Main Features
 
-See [KUBERNETES.md](KUBERNETES.md) to execute IB Gateway in Kubernetes.
+- **Fully containerized**: IB Gateway + IBC in a complete Docker container
+- **Automated startup**: Gateway startup is handled by [IBC (Interactive Brokers Controller)](https://github.com/IbcAlpha/IBC)
+- **Auto-restart**: Automatic restart on disconnection (like IB's daily disconnect)
+- **VNC support**: GUI access via VNC for debugging
+- **Multi-channel**: Support for `stable`, `latest`, and `nightly` versions
+  - **`stable` & `latest`**: Infinite lifespan until replaced by a new version. Previous versions expire 3 months after replacement
+  - **`nightly`**: Temporary builds (3-day lifespan) for testing advanced versions
+- **Python scripts**: Debugging tools in debug to test API connections
+- **Weekly releases**: Automated releases on `stable` and `latest` channels every Sunday
+- **Cloud-ready**: Works perfectly on AWS ECS/Kubernetes. Hartza Capital uses a customized version on AWS ECS in production
+- **Extensible**: You can add your own custom scripts within the container (though this is generally considered a bad practice, it's the simplest approach given the gateway's security criticality and IBKR gateway's rigidity)
 
-## Paper vs Live Account
+## Project Structure
 
-This container is setup to connect to a paper account. To switch to a live account:
+- **build.sh**: Automated build script that handles different channels
+- **docker-compose.yaml**: Configuration to start the container easily
+- **Dockerfile**: Container build with IB Gateway and IBC
+- **config.ini**: IBC configuration for automation
+- **GitHub Actions**: Automated CI/CD to build and publish images to [Quay.io](https://quay.io/repository/hartza-capital/ib-gateway?tab=tags)
 
-- Create your config IBC (example `gateway/config/config.ini.example`) in the same folder of example `config.ini`.
-  - `TradingMode=live`
-  - `IbLoginId=LOGIN`
-  - `IbPassword=XXXX`
+## Usage
 
-You will have to restart the container after making these changes.
-
-## Changes from the default config.ini
-
-```config
-AcceptBidAskLastSizeDisplayUpdateNotification=accept
-AcceptIncomingConnectionAction=accept
-AcceptNonBrokerageAccountWarning=yes
-TradingMode=paper
-```
+The project allows running IB Gateway in headless mode for automated trading strategies, with optional VNC access on port 5900 and API on ports 4001/4002.
