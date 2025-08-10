@@ -15,9 +15,3 @@ if [ -n "$VNC_SERVER_PASSWORD" ]; then
 else
     x11vnc -ncache 10 -ncache_cr -display :0 -forever -shared -bg -noipv6 &
 fi
-
-# Start TWS and automatically restart if it dies
-while true; do
-    /opt/ibc/gatewaystart.sh -inline
-    sleep 5
-done

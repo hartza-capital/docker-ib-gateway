@@ -38,6 +38,10 @@ RUN apt update && \
     apt install -y x11vnc xvfb procps && \
     rm -rf /var/lib/apt/lists/*
 
+# Copy unstoppable/nc binary
+COPY --from=quay.io/hartza-capital/unstoppable:latest /usr/local/bin/unstoppable /usr/local/bin/unstoppable
+COPY --from=quay.io/hartza-capital/unstoppable:latest /usr/local/bin/nc /usr/local/bin/nc
+
 # Create rootless user
 RUN useradd -m -u 10001 trader
 
@@ -55,12 +59,14 @@ RUN yes '' | ./install.sh \
 # Copy IBC and scripts
 COPY --chown=trader --from=build /opt/ibc /opt/ibc
 COPY --chown=trader config.ini ./scripts/gatewaystart.sh /opt/ibc/
-COPY --chown=trader ./scripts/run.sh .
+COPY --chown=trader ./scripts/x11vnc.sh x11vnc.sh
+COPY --chown=trader unstoppable.conf unstoppable.conf
 RUN chmod +x ./*.sh /opt/ibc/**.sh
 
 # 5900: VNC
 # 4001: Gateway Live Trading
 # 4002: Gateway Virtual Trading
-EXPOSE 5900 4001 4002
+# 8080: Unstoppable Healthcheck
+EXPOSE 5900 4001 4002 8080
 
-CMD [ "./run.sh" ]
+CMD [ "unstoppable", "-c", "unstoppable.conf" ]
