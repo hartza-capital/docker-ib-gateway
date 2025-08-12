@@ -38,9 +38,9 @@ RUN apt update && \
     apt install -y x11vnc xvfb procps && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy unstoppable/nc binary
+# Copy unstoppable/healthcheck binary
 COPY --from=quay.io/hartza-capital/unstoppable:latest /usr/local/bin/unstoppable /usr/local/bin/unstoppable
-COPY --from=quay.io/hartza-capital/unstoppable:latest /usr/local/bin/nc /usr/local/bin/nc
+COPY --from=quay.io/hartza-capital/unstoppable:latest /usr/local/bin/healthcheck /usr/local/bin/healthcheck
 
 # Create rootless user
 RUN useradd -m -u 10001 trader
