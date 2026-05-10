@@ -5,11 +5,11 @@ CHANNEL=$1
 PUSH=$2
 
 # IBC versions stable
-IBC_RELEASE_STABLE="3.21.2"
+IBC_RELEASE_STABLE="3.23.0"
 IBC_VERSION_STABLE=$(echo "${IBC_RELEASE_STABLE}" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
 
 # IBC versions latest
-IBC_RELEASE_LATEST="3.21.2"
+IBC_RELEASE_LATEST="3.23.0"
 IBC_VERSION_LATEST=$(echo "${IBC_RELEASE_LATEST}" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
 
 # Default values
