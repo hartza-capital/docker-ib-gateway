@@ -19,8 +19,8 @@ This project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr
 - **Auto-restart**: Automatic restart on disconnection (like IB's daily disconnect)
 - **VNC support**: GUI access via VNC for debugging
 - **Multi-channel**: Support for `stable`, `latest`, and `nightly` versions
-  - **`stable` & `latest`**: Infinite lifespan until replaced by a new version. Previous versions expire 3 months after replacement
-  - **`nightly`**: Temporary builds (3-day lifespan) for testing advanced versions
+  - **`stable` & `latest`**: Long-lived releases (12 weeks expiration). Weekly builds on Sundays
+  - **`nightly`**: Temporary builds (1-week lifespan) for testing advanced versions
 - **Python scripts**: Debugging tools in debug to test API connections
 - **Weekly releases**: Automated releases on `stable` and `latest` channels every Sunday
 - **Cloud-ready**: Works perfectly on AWS ECS/Kubernetes. Hartza Capital uses a customized version on AWS ECS in production
@@ -28,11 +28,13 @@ This project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr
 
 ## Project Structure
 
-- **build.sh**: Automated build script that handles different channels
-- **docker-compose.yaml**: Configuration to start the container easily
-- **Dockerfile**: Container build with IB Gateway and IBC
-- **config.ini**: IBC configuration for automation
-- **GitHub Actions**: Automated CI/CD to build and publish images to [Quay.io](https://quay.io/repository/hartza-capital/ib-gateway?tab=tags)
+- **build.sh**: Automated build script that handles different channels and fetches versions dynamically
+- **docker-compose.yaml**: Configuration to start the container easily with volume mounts for local development
+- **gateway/Dockerfile**: Multi-stage build with IB Gateway, IBC, and process supervisor
+- **gateway/config.ini**: IBC configuration for automation
+- **gateway/unstoppable.conf**: Process supervisor configuration for service management
+- **gateway/scripts/**: Startup and VNC initialization scripts
+- **.github/workflows/**: Automated CI/CD (build_stable.yml, build_latest.yml, build_nightly.yml) to build and publish images to [Quay.io](https://quay.io/repository/hartza-capital/ib-gateway?tab=tags)
 
 ## Quick Start
 
@@ -138,79 +140,58 @@ python gateway/debug/positions.py
 
 ## Production Deployment
 
-### AWS ECS
+The container image is compatible with AWS ECS and Kubernetes deployments. Use standard container orchestration practices:
 
-Example task definition for AWS ECS:
-
-```json
-{
-  "family": "ib-gateway",
-  "containerDefinitions": [{
-    "name": "ib-gateway",
-    "image": "quay.io/hartza-capital/ib-gateway:stable",
-    "memory": 2048,
-    "cpu": 1024,
-    "essential": true,
-    "portMappings": [
-      {"containerPort": 4001, "protocol": "tcp"},
-      {"containerPort": 4002, "protocol": "tcp"}
-    ],
-    "environment": [
-      {"name": "VNC_SERVER_PASSWORD", "value": "your_password"}
-    ]
-  }]
-}
-```
-
-### Kubernetes
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ib-gateway
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ib-gateway
-  template:
-    metadata:
-      labels:
-        app: ib-gateway
-    spec:
-      containers:
-      - name: ib-gateway
-        image: quay.io/hartza-capital/ib-gateway:stable
-        ports:
-        - containerPort: 4001
-        - containerPort: 4002
-        env:
-        - name: VNC_SERVER_PASSWORD
-          value: "your_password"
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
-```
+- **Memory**: Recommend minimum 2GB, ideally 2-4GB depending on trading volume
+- **CPU**: Recommend minimum 1 core (1000m in Kubernetes)
+- **Volumes**: Mount `/home/trader/.ibrokerscache` for persistent session data if needed
+- **Environment**: Set `VNC_SERVER_PASSWORD` for secure access
+- **Ports**: Expose 4001 (live), 4002 (paper), 8080 (health), optionally 5900 (VNC)
 
 ## Release Channels
 
 | Channel | Update Frequency | Lifespan | Use Case |
 |---------|------------------|----------|----------|
-| `stable` | Weekly (Sundays) | 12 weeks | Production environments |
-| `latest` | Weekly (Sundays) | 12 weeks | Development/testing |
+| `stable` | Weekly (Sundays at 5:00 UTC) | 12 weeks | Production environments |
+| `latest` | Weekly (Sundays at 5:00 UTC) | 12 weeks | Development/testing |
 | `nightly` | On-demand | 1 week | Experimental features |
+
+## Architecture Overview
+
+### External Dependencies
+
+The container depends on three external components:
+
+1. **IB Gateway** (Interactive Brokers)
+   - Official trading gateway from Interactive Brokers
+   - Downloaded from: `https://download2.interactivebrokers.com/installers/ibgateway/{channel}-standalone/`
+   - Provides Live and Paper trading APIs
+
+2. **IBC** (Interactive Brokers Controller)
+   - Open-source project: [IbcAlpha/IBC on GitHub](https://github.com/IbcAlpha/IBC)
+   - Automates gateway startup, login, and configuration
+   - Downloaded from GitHub releases during build
+
+3. **Unstoppable** (Hartza Capital)
+   - Process supervisor: `quay.io/hartza-capital/unstoppable` (public image)
+   - Manages process lifecycle with auto-restart
+   - Provides health checks on port `8080`
+
+### Build Process
+
+The container uses a multi-stage build:
+- **Build stage**: Downloads IB Gateway installer and IBC from GitHub releases
+- **Runtime stage**: Python 3.14 slim base with X11/VNC support and rootless user (`trader`)
+- **Entry point**: `unstoppable` service manages IBC startup, X11/VNC server, and health monitoring
 
 ## Security Considerations
 
 - **Credentials**: Never hardcode credentials in config files. Use environment variables or secrets management
+- **Rootless**: Runs as unprivileged `trader` user (UID 10001) with no root access
 - **Network**: Restrict API access to trusted IP addresses only
 - **VNC**: Use strong passwords for VNC access and disable if not needed
 - **Updates**: Regularly update to latest stable releases for security patches
+- **Process supervisor**: Uses public `quay.io/hartza-capital/unstoppable` image (source code is private at Hartza Capital)
 
 ## Troubleshooting
 
@@ -219,7 +200,9 @@ spec:
 **Gateway won't start:**
 - Check credentials in `config.ini`
 - Verify trading mode matches account type
-- Check logs: `docker logs <container_id>`
+- Check IBC logs: `docker exec <container_id> tail -f /home/trader/ibc/logs/ibc.log`
+- Verify IBC version compatibility (see CLAUDE.md for version details)
+- Check overall logs: `docker logs <container_id>`
 
 **API connection refused:**
 - Ensure ports 4001/4002 are exposed and accessible
