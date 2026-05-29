@@ -19,9 +19,7 @@ This project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr
 - **Automated startup**: Gateway startup is handled by [IBC (Interactive Brokers Controller)](https://github.com/IbcAlpha/IBC)
 - **Auto-restart**: Automatic restart on disconnection (like IB's daily disconnect)
 - **VNC support**: GUI access via VNC for debugging
-- **Multi-channel**: Support for `stable`, `latest`, and `nightly` versions
-  - **`stable` & `latest`**: Long-lived releases (12 weeks expiration). Weekly builds on Sundays
-  - **`nightly`**: Temporary builds (1-week lifespan) for testing advanced versions
+- **Multi-channel**: Support for `stable` and `latest` versions — long-lived releases (12 weeks expiration), weekly builds on Sundays
 - **Python scripts**: Debugging tools in debug to test API connections
 - **Weekly releases**: Automated releases on `stable` and `latest` channels every Sunday
 - **Cloud-ready**: Works perfectly on AWS ECS/Kubernetes. Hartza Capital uses a customized version on AWS ECS in production
@@ -35,7 +33,7 @@ This project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr
 - **gateway/config.ini**: IBC configuration for automation
 - **gateway/unstoppable.conf**: Process supervisor configuration for service management
 - **gateway/scripts/**: Startup and VNC initialization scripts
-- **.github/workflows/**: Automated CI/CD (build_stable.yml, build_latest.yml, build_nightly.yml) to build and publish images to [Quay.io](https://quay.io/repository/hartza-capital/ib-gateway?tab=tags)
+- **.github/workflows/**: Automated CI/CD (build_stable.yml, build_latest.yml) to build and publish images to [Quay.io](https://quay.io/repository/hartza-capital/ib-gateway?tab=tags)
 
 ## Quick Start
 
@@ -127,6 +125,13 @@ ExistingSessionDetectedAction=primaryoverride
 - `5900`: VNC server for GUI access
 - `8080`: Health check endpoint
 
+## Client SDKs
+
+Once the gateway is running, connect your trading application using one of the official or community SDKs:
+
+- **[IBKR API (official)](https://interactivebrokers.github.io/)** — Official documentation and native client libraries (Java, C++, Python, C#)
+- **[ib_async](https://github.com/ib-api-reloaded/ib_async)** — Community asyncio Python client (continuation of `ib_insync`), used by the debug scripts in this repo
+
 ## Debug Tools
 
 Python scripts in `gateway/debug/` help test API connectivity:
@@ -158,7 +163,6 @@ The container image is compatible with AWS ECS and Kubernetes deployments. Use s
 | --------- | ---------------------------- | -------- | ----------------------- |
 | `stable`  | Weekly (Sundays at 5:00 UTC) | 12 weeks | Production environments |
 | `latest`  | Weekly (Sundays at 5:00 UTC) | 12 weeks | Development/testing     |
-| `nightly` | On-demand                    | 1 week   | Experimental features   |
 
 ## Architecture Overview
 
@@ -240,7 +244,7 @@ docker exec ib-gateway-container tail -f /home/trader/ibc/logs/ibc.log
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test with all three channels (`stable`, `latest`, `nightly`)
+4. Test with both channels (`stable`, `latest`)
 5. Submit a pull request
 
 ## Support

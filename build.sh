@@ -23,9 +23,6 @@ if [ "$CHANNEL" = "latest" ]; then
 elif [ "$CHANNEL" = "stable" ]; then
     BUILD=$(curl -s $URL_DOWNLOAD | grep -o '{.*}' | jq -r .buildVersion)
     docker build ./gateway --platform linux/amd64 --build-arg BUILD=$BUILD --build-arg CHANNEL=$CHANNEL --build-arg IBC_RELEASE=$IBC_RELEASE_STABLE --build-arg IBC_VERSION=$IBC_VERSION_STABLE -t $IMAGE:$BUILD
-elif [ "$CHANNEL" = "nightly" ]; then
-    BUILD=$(git rev-parse --short HEAD)
-    docker build ./gateway --platform linux/amd64 --build-arg BUILD=$BUILD --build-arg CHANNEL=stable --build-arg IBC_RELEASE=$IBC_RELEASE_LATEST --build-arg IBC_VERSION=$IBC_VERSION_LATEST --build-arg QUAY_EXPIRE=1w -t $IMAGE:$BUILD
 else
     echo "channel ${CHANNEL} isn't available"
     exit 1

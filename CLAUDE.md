@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This project containerizes Interactive Brokers Gateway with IBC (Interactive Brokers Controller) for automated trading. It builds Docker images published to Quay.io with support for multiple channels (stable, latest, nightly) and includes VNC support for debugging.
+This project containerizes Interactive Brokers Gateway with IBC (Interactive Brokers Controller) for automated trading. It builds Docker images published to Quay.io with support for two channels (stable, latest) and includes VNC support for debugging.
 
 ## Build Commands
 
@@ -14,7 +14,6 @@ This project containerizes Interactive Brokers Gateway with IBC (Interactive Bro
 # Build by channel (fetches latest IBKR version automatically)
 ./build.sh stable
 ./build.sh latest
-./build.sh nightly   # uses git commit hash as BUILD, 1-week expiry
 
 # Build and push to registry
 ./build.sh stable --push
@@ -25,7 +24,7 @@ This project containerizes Interactive Brokers Gateway with IBC (Interactive Bro
 
 `build.sh` manages two critical external dependencies:
 
-**IB Gateway** — fetched from IBKR's version endpoint during build. Nightly uses the stable IBKR channel (not a separate nightly IBKR build).
+**IB Gateway** — fetched from IBKR's version endpoint during build.
 
 **IBC** (Interactive Brokers Controller) — downloaded from GitHub releases. Versions are defined in two places that must stay in sync:
 
@@ -91,13 +90,12 @@ docker build ./gateway --platform linux/amd64 \
 
 ### CI/CD and Tag Format
 
-Weekly GitHub Actions builds (Sunday 05:00 UTC) via three workflows in `.github/workflows/`.
+Weekly GitHub Actions builds (Sunday 05:00 UTC) via two workflows in `.github/workflows/`.
 
 | Channel | Tags pushed                            |
 | ------- | -------------------------------------- |
 | stable  | `<build_version>`, `<major>`, `stable` |
 | latest  | `<build_version>`, `<minor>`, `latest` |
-| nightly | `<git_short_sha>` only                 |
 
 Note: `build.sh` also creates a `<major>-<channel>` local tag (e.g. `10-stable`) but does not push it.
 
