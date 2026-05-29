@@ -1,9 +1,10 @@
 <!-- filepath: /Users/perriea/go/src/github.com/hartza-capital/docker-ib-gateway/README.md -->
+
 # Docker IB Gateway
 
 ## What is it?
 
-A project that containerizes **IB Gateway** (Interactive Brokers Gateway) with **IBC** (Interactive Brokers Controller) to enable automated trading without a graphical interface. 
+A project that containerizes **IB Gateway** (Interactive Brokers Gateway) with **IBC** (Interactive Brokers Controller) to enable automated trading without a graphical interface.
 
 This project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr-docker) but with a different approach by **Hartza Capital**.
 
@@ -41,12 +42,14 @@ This project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr
 ### Using Docker Compose (Recommended)
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/hartza-capital/docker-ib-gateway.git
 cd docker-ib-gateway
 ```
 
 2. Configure your credentials in `gateway/config.ini`:
+
 ```ini
 IbLoginId=your_username
 IbPassword=your_password
@@ -54,6 +57,7 @@ TradingMode=paper  # or 'live' for production
 ```
 
 3. Start the container:
+
 ```bash
 docker-compose up -d
 ```
@@ -150,11 +154,11 @@ The container image is compatible with AWS ECS and Kubernetes deployments. Use s
 
 ## Release Channels
 
-| Channel | Update Frequency | Lifespan | Use Case |
-|---------|------------------|----------|----------|
-| `stable` | Weekly (Sundays at 5:00 UTC) | 12 weeks | Production environments |
-| `latest` | Weekly (Sundays at 5:00 UTC) | 12 weeks | Development/testing |
-| `nightly` | On-demand | 1 week | Experimental features |
+| Channel   | Update Frequency             | Lifespan | Use Case                |
+| --------- | ---------------------------- | -------- | ----------------------- |
+| `stable`  | Weekly (Sundays at 5:00 UTC) | 12 weeks | Production environments |
+| `latest`  | Weekly (Sundays at 5:00 UTC) | 12 weeks | Development/testing     |
+| `nightly` | On-demand                    | 1 week   | Experimental features   |
 
 ## Architecture Overview
 
@@ -180,6 +184,7 @@ The container depends on three external components:
 ### Build Process
 
 The container uses a multi-stage build:
+
 - **Build stage**: Downloads IB Gateway installer and IBC from GitHub releases
 - **Runtime stage**: Python 3.14 slim base with X11/VNC support and rootless user (`trader`)
 - **Entry point**: `unstoppable` service manages IBC startup, X11/VNC server, and health monitoring
@@ -198,6 +203,7 @@ The container uses a multi-stage build:
 ### Common Issues
 
 **Gateway won't start:**
+
 - Check credentials in `config.ini`
 - Verify trading mode matches account type
 - Check IBC logs: `docker exec <container_id> tail -f /home/trader/ibc/logs/ibc.log`
@@ -205,11 +211,13 @@ The container uses a multi-stage build:
 - Check overall logs: `docker logs <container_id>`
 
 **API connection refused:**
+
 - Ensure ports 4001/4002 are exposed and accessible
 - Check if gateway is fully initialized (can take 1-2 minutes)
 - Verify API is enabled in gateway settings
 
 **VNC connection fails:**
+
 - Check `VNC_SERVER_PASSWORD` environment variable
 - Ensure port 5900 is exposed
 - Wait for X11 server initialization

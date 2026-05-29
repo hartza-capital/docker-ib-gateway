@@ -1,5 +1,10 @@
 {
   "mcpServers": {
+    "codegraph": {
+      "type": "stdio",
+      "command": "codegraph",
+      "args": ["serve", "--mcp"]
+    },
     "github": {
       "command": "github-mcp-server",
       "args": ["stdio"],

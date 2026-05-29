@@ -20,8 +20,8 @@ RUN wget https://github.com/IbcAlpha/IBC/releases/download/${IBC_VERSION}/IBCLin
 # Set permissions
 RUN chmod +x *.sh /opt/ibc/*.sh /opt/ibc/*/*.sh
 
-# Python base for running custom scripts
-FROM python:3.14-slim-bookworm
+# Debian base for running custom scripts
+FROM debian:stable-slim
 
 LABEL org.opencontainers.image.source=https://github.com/hartza-capital/ib-gateway-docker
 LABEL org.opencontainers.image.url=https://quay.io/repository/hartza-capital/ib-gateway
