@@ -19,7 +19,7 @@ This project is based on [extrange/ibkr-docker](https://github.com/extrange/ibkr
 - **Automated startup**: Gateway startup is handled by [IBC (Interactive Brokers Controller)](https://github.com/IbcAlpha/IBC)
 - **Auto-restart**: Automatic restart on disconnection (like IB's daily disconnect)
 - **VNC support**: GUI access via VNC for debugging
-- **Multi-channel**: Support for `stable` and `latest` versions — long-lived releases (12 weeks expiration), weekly builds on Sundays
+- **Multi-channel**: Support for `stable` and `latest` versions — weekly builds on Sundays; `latest` images are pruned after 12 weeks, `stable` images are kept
 - **Python scripts**: Debugging tools in debug to test API connections
 - **Weekly releases**: Automated releases on `stable` and `latest` channels every Sunday
 - **Cloud-ready**: Works perfectly on AWS ECS/Kubernetes. Hartza Capital uses a customized version on AWS ECS in production
@@ -159,10 +159,10 @@ The container image is compatible with AWS ECS and Kubernetes deployments. Use s
 
 ## Release Channels
 
-| Channel   | Update Frequency             | Lifespan | Use Case                |
-| --------- | ---------------------------- | -------- | ----------------------- |
-| `stable`  | Weekly (Sundays at 5:00 UTC) | 12 weeks | Production environments |
-| `latest`  | Weekly (Sundays at 5:00 UTC) | 12 weeks | Development/testing     |
+| Channel   | Update Frequency             | Lifespan                    | Use Case                |
+| --------- | ---------------------------- | --------------------------- | ----------------------- |
+| `stable`  | Weekly (Sundays at 5:00 UTC) | Never expires               | Production environments |
+| `latest`  | Weekly (Sundays at 5:00 UTC) | 12 weeks (`quay.expires-after=12w`) | Development/testing     |
 
 ## Architecture Overview
 
@@ -176,9 +176,10 @@ The container depends on three external components:
    - Provides Live and Paper trading APIs
 
 2. **IBC** (Interactive Brokers Controller)
-   - Open-source project: [IbcAlpha/IBC on GitHub](https://github.com/IbcAlpha/IBC)
+   - Upstream open-source project: [IbcAlpha/IBC on GitHub](https://github.com/IbcAlpha/IBC) — **archived** since the author's retirement; its last release was `3.24.2`
+   - Hartza Capital maintains its own repo, [hartza-capital/IBC](https://github.com/hartza-capital/IBC), and the image ships **its** release (`ARG IBC_VERSION` in `gateway/Dockerfile`), not upstream's
    - Automates gateway startup, login, and configuration
-   - Downloaded from GitHub releases during build
+   - Downloaded from `hartza-capital/IBC` GitHub releases during build
 
 3. **Unstoppable** (Hartza Capital)
    - Process supervisor: `quay.io/hartza-capital/unstoppable` (public image)
@@ -189,8 +190,8 @@ The container depends on three external components:
 
 The container uses a multi-stage build:
 
-- **Build stage**: Downloads IB Gateway installer and IBC from GitHub releases
-- **Runtime stage**: Python 3.14 slim base with X11/VNC support and rootless user (`trader`)
+- **Build stage**: Downloads IB Gateway installer and the IBC release from the fork's GitHub releases
+- **Runtime stage**: Debian slim base with X11/VNC support and rootless user (`trader`)
 - **Entry point**: `unstoppable` service manages IBC startup, X11/VNC server, and health monitoring
 
 ## Security Considerations
@@ -211,7 +212,7 @@ The container uses a multi-stage build:
 - Check credentials in `config.ini`
 - Verify trading mode matches account type
 - Check IBC logs: `docker exec <container_id> tail -f /home/trader/ibc/logs/ibc.log`
-- Verify IBC version compatibility (see CLAUDE.md for version details)
+- Verify IBC version compatibility (see `AGENTS.md` for version details)
 - Check overall logs: `docker logs <container_id>`
 
 **API connection refused:**

@@ -14,9 +14,12 @@
 
 ## Test plan
 
-- [ ] TypeScript type check passes (`make type-check`)
-- [ ] Rust check passes (`make rust-check`)
-- [ ] i18n validation passes (`make i18n-check`)
-- [ ] Manual testing:
+<!-- Replace with the commands that actually apply to this repo: `make help`
+     lists every target the sync deployed. -->
 
-🤖 Generated with [Claude Code](https://claude.ai/claude-code)
+- [ ] Lint passes (`make lint`)
+- [ ] Tests pass (`make test`)
+- [ ] Formatting passes (`make format-check`)
+
+
+- [ ] Manual testing:
