@@ -33,23 +33,19 @@ fi
 
 docker build ./gateway --platform linux/amd64 "${BUILD_ARGS[@]}" -t "$IMAGE:$BUILD"
 
-# Extract versions
-MAJOR=$(echo "$BUILD" | grep -o '^[0-9]*')
-MINOR=$(echo "$BUILD" | grep -o '^[0-9]*.[0-9]*')
-
-# Build & tags
+# The minor series (10.50) and the build version pin a release; the channel tag
+# is the only tag that jumps between minors. PUBLISHED_TAGS drives the push loop,
+# so nothing is pushed unless it was created.
 echo "Tags image $BUILD"
-docker tag "$IMAGE:$BUILD" "$IMAGE:$CHANNEL"
-docker tag "$IMAGE:$BUILD" "$IMAGE:$MAJOR-$CHANNEL"
+MINOR=$(echo "$BUILD" | cut -d. -f1-2)
+PUBLISHED_TAGS=("$BUILD" "$MINOR" "$CHANNEL")
 docker tag "$IMAGE:$BUILD" "$IMAGE:$MINOR"
+docker tag "$IMAGE:$BUILD" "$IMAGE:$CHANNEL"
 
-# Push images
+# Version tags first, channel last: a failed version push leaves stable/latest alone.
 if [ "$PUSH" = "--push" ]; then
     echo "Push images Gateway"
-    docker push "$IMAGE:$BUILD"
-    docker push "$IMAGE:$MINOR"
-    if [ "$CHANNEL" = "stable" ]; then
-        docker push "$IMAGE:$MAJOR"
-    fi
-    docker push "$IMAGE:$CHANNEL"
+    for tag in "${PUBLISHED_TAGS[@]}"; do
+        docker push "$IMAGE:$tag"
+    done
 fi

@@ -114,10 +114,10 @@ Two workflows in `.github/workflows/` (`build_stable.yml`, `build_latest.yml`), 
 
 | Channel | Tags pushed                            |
 | ------- | -------------------------------------- |
-| stable  | `<build_version>`, `<major>`, `stable` |
+| stable  | `<build_version>`, `<minor>`, `stable` |
 | latest  | `<build_version>`, `<minor>`, `latest` |
 
-Note: `build.sh` also creates a `<major>-<channel>` local tag (e.g. `10-stable`) but does not push it. The `<minor>` tag carries no channel suffix, so the two workflows overwrite it — whichever runs last owns `10.50`.
+Three tags per build: `<build_version>` (e.g. `10.50.1f`) pins an exact release, `<minor>` (e.g. `10.50`) follows patches within a minor series, and the channel tag is the only one that jumps between minors. `build.sh` keeps a single `PUBLISHED_TAGS` array driving both `docker tag` and the push loop, and pushes the channel tag last, so a failed push leaves `stable`/`latest` where it was. `<minor>` carries no channel suffix, so both workflows write it when they land on the same series — last one wins.
 
 ### Security Model
 
